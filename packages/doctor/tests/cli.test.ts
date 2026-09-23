@@ -11,12 +11,19 @@ describe('built cli', () => {
     const r = run('--help');
     expect(r.status).toBe(0);
     expect(r.stdout).toContain('react-native-perfkit doctor');
+    expect(r.stdout).toContain('react-native-perfkit record');
+    expect(r.stdout).toContain('--adb');
   });
 
   it('rejects unknown commands with exit 2', () => {
     const r = run('nope');
     expect(r.status).toBe(2);
     expect(r.stderr).toContain('Unknown command');
+  });
+
+  it('record: --adb needs an Android target', () => {
+    const r = run('record', '--metro', 'http://127.0.0.1:1', '--adb', 'input tap 1 1');
+    expect(r.status).toBe(2);
   });
 
   it('fails clearly (exit 2) when Metro is unreachable', () => {

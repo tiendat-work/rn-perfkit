@@ -9,6 +9,7 @@ import {
   checkEnv,
   checkGfx,
   checkIdle,
+  checkInteraction,
   checkProfile,
   checkScroll,
   type Env,
@@ -16,10 +17,11 @@ import {
   type Sample,
 } from './checks';
 import { fetchJson, type MetroTarget, pickTarget, targetInfo } from './metro';
-import { androidDevices, androidFling, androidGpu, bootedIosSims, gfxRead, gfxReset } from './native';
+import { adbPath, androidDevices, androidFling, androidGpu, bootedIosSims, exec, gfxRead, gfxReset } from './native';
 import {
   censusProbe,
   envProbe,
+  parkProbe,
   scrollDoneProbe,
   startSamplingProbe,
   startScrollProbe,
@@ -36,6 +38,8 @@ export type DoctorOptions = {
   scrollPasses: number;
   scrollStepMs: number;
   profile: boolean;
+  /** Park the main scroller before the idle window: px (e.g. '4000') or percent ('60%'). */
+  park?: string;
   profileOut?: string;
   android: boolean;
   log: (msg: string) => void;
@@ -90,6 +94,24 @@ export async function runDoctor(opts: DoctorOptions): Promise<Report> {
         value: 'not present',
         advice: 'Fiber-based checks (views, commits) need a dev build with the DevTools hook.',
       });
+    }
+
+    // 1b. park: scroll to a fixed spot first so the idle window is reproducible
+    if (opts.park) {
+      const m = opts.park.trim().match(/^(\d+(?:\.\d+)?)(%)?$/);
+      if (!m) throw new Error(`--park expects px or percent, got "${opts.park}"`);
+      const fraction = !!m[2];
+      const at = fraction ? Number(m[1]) / 100 : Number(m[1]);
+      opts.log(`park: scrolling main list to ${opts.park}`);
+      const started = await cdp.evaluateJson<{ ok: boolean; reason?: string }>(parkProbe(at, fraction));
+      if (!started.ok) throw new Error(`--park: ${started.reason}`);
+      const parked = await waitFor(async () => {
+        const s = await cdp.evaluateJson<{ done: boolean; y: number | null; contentHeight: number | null }>(scrollDoneProbe);
+        return s.done ? s : undefined;
+      }, 5000, 200);
+      raw.park = parked;
+      // let the list mount cells at the new offset and loaders start
+      await sleep(2500);
     }
 
     // 2. host-view census
@@ -192,6 +214,83 @@ export async function runDoctor(opts: DoctorOptions): Promise<Report> {
     version: VERSION,
     createdAt: new Date().toISOString(),
     target: { title: target.title, ...info, platform },
+    findings,
+    raw,
+  };
+}
+
+export type RecordOptions = {
+  metro: string;
+  device?: string;
+  seconds: number;
+  /** adb shell commands run (in order, `;`-separated) at the start of the window. */
+  adb?: string;
+  android: boolean;
+  log: (msg: string) => void;
+};
+
+/**
+ * Sample one interaction window: JS frame pacing + React commits (and their
+ * origins) + Android gfxinfo, for `seconds`. Something else drives the
+ * interaction: `--adb "input tap 500 1200; sleep 1; input swipe ..."` on Android,
+ * or a human on any platform. This is how you measure things the scroll driver
+ * can't reach (opening a sheet, dragging it, a navigation transition).
+ */
+export async function runRecord(opts: RecordOptions): Promise<Report> {
+  const findings: Finding[] = [];
+  const raw: Record<string, unknown> = {};
+  const targets = await listTargets(opts.metro);
+  const target = pickTarget(targets, opts.device);
+  if (!target) throw new Error(`No React Native runtime target${opts.device ? ` matching "${opts.device}"` : ''}.`);
+  const info = targetInfo(target);
+  const platform = platformOf(target);
+  opts.log(`target: ${target.title} [${platform}]`);
+
+  const cdp = await CdpClient.connect(target.webSocketDebuggerUrl);
+  try {
+    await cdp.send('Runtime.enable').catch(() => undefined);
+    const env = await cdp.evaluateJson<Env & { renderers: number[] }>(envProbe);
+    raw.env = env;
+    findings.push(...checkEnv(env));
+
+    let serial: string | undefined;
+    if (opts.android && platform === 'android') {
+      const devs = await androidDevices();
+      serial = (devs.find((d) => d.emulator) ?? devs[0])?.serial;
+    }
+    if (opts.adb && !serial) throw new Error('--adb needs an Android target with an adb device');
+
+    if (serial && info.appId) await gfxReset(serial, info.appId);
+    await cdp.evaluateJson(startSamplingProbe);
+    const t0 = Date.now();
+    if (opts.adb && serial) {
+      opts.log(`record: running adb script`);
+      for (const step of opts.adb.split(';').map((s) => s.trim()).filter(Boolean)) {
+        const sl = step.match(/^sleep\s+(\d+(?:\.\d+)?)$/);
+        if (sl) await sleep(Number(sl[1]) * 1000);
+        else await exec(adbPath(), ['-s', serial, 'shell', ...step.split(/\s+/)]);
+      }
+    } else {
+      opts.log(`record: interact with the app now (${opts.seconds}s)`);
+    }
+    const left = opts.seconds * 1000 - (Date.now() - t0);
+    if (left > 0) await sleep(left);
+    const sample = await cdp.evaluateJson<Sample>(stopSamplingProbe);
+    raw.record = sample;
+    findings.push(...checkInteraction(sample, env));
+    if (serial && info.appId) {
+      const g = await gfxRead(serial, info.appId);
+      raw.gfxRecord = g;
+      findings.push(...checkGfx('interaction', g, env));
+    }
+  } finally {
+    cdp.close();
+  }
+  return {
+    tool: 'react-native-perfkit',
+    version: VERSION,
+    createdAt: new Date().toISOString(),
+    target: { title: target.title, deviceName: info.deviceName, appId: info.appId, platform },
     findings,
     raw,
   };

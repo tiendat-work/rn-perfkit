@@ -157,6 +157,33 @@ export function checkWarnings(s: Sample): Finding[] {
   ];
 }
 
+/** One interaction window (record command): JS pacing + commit rate, with origins. */
+export function checkInteraction(s: Sample, env: Env): Finding[] {
+  const dbg = env.dev ? ' (Debug build: JS cost is overstated; confirm in Release)' : '';
+  const origins = s.commitOrigins.slice(0, 5).map(([n, c]) => `${n} ×${c}`).join(', ');
+  const fpsStatus: Status =
+    s.jsFps < THRESHOLDS.scrollJsFps.fail || s.max > THRESHOLDS.scrollMaxGapMs.fail
+      ? 'fail'
+      : s.jsFps < THRESHOLDS.scrollJsFps.warn || s.max > THRESHOLDS.scrollMaxGapMs.warn
+        ? 'warn'
+        : 'pass';
+  return [
+    {
+      id: 'interaction-js',
+      title: 'JS thread during the interaction',
+      status: fpsStatus,
+      value: `${f1(s.jsFps)} fps, p99 ${f1(s.p99)}ms, max ${Math.round(s.max)}ms, ${s.over100} stalls >100ms`,
+      advice: fpsStatus === 'pass' ? undefined : `Long JS frames during the interaction${dbg}. Profile it or move the animation to the UI thread.`,
+    },
+    {
+      id: 'interaction-commits',
+      title: 'React commits during the interaction',
+      status: 'info',
+      value: `${s.commits} commits (${f1(s.commitsPerSec)}/s)${origins ? `: ${origins}` : ''}`,
+    },
+  ];
+}
+
 export function checkScroll(s: Sample, env: Env): Finding[] {
   const f = THRESHOLDS.scrollJsFps;
   const g = THRESHOLDS.scrollMaxGapMs;

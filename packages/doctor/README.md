@@ -7,6 +7,7 @@ Each finding comes with advice based on something we measured ourselves.
 npx react-native-perfkit doctor                    # first RN runtime connected to Metro
 npx react-native-perfkit doctor --device iPhone --profile run.cpuprofile --out report.json
 npx react-native-perfkit targets                   # list Metro inspector targets
+npx react-native-perfkit record --seconds 8        # sample one interaction while you (or adb) drive it
 ```
 
 It talks to the app through Metro's inspector (Chrome DevTools Protocol, the same channel React Native
@@ -33,6 +34,8 @@ DevTools uses), and through `adb` on Android. The app code needs no changes and 
 --metro <url>        Metro dev server (default http://localhost:8081)
 --device <text>      pick a target by device name / app id
 --idle <seconds>     idle sampling window (default 5)
+--park <px|%>        scroll the main list there first (e.g. 4000 or 60%), so the idle
+                     window measures one region reproducibly (e.g. a section of loaders)
 --no-scroll          skip the scroll benchmark
 --passes <n>         scroll passes down+up (default 1)
 --step <ms>          delay between scroll steps (default 450)
@@ -43,6 +46,28 @@ DevTools uses), and through `adb` on Android. The app code needs no changes and 
 ```
 
 Exit codes: 0 = ok, 1 = findings at or above `--fail-on`, 2 = usage error or no app reachable.
+
+## Measuring one interaction (`record`)
+
+The doctor's scroll driver only reaches lists. For everything else (opening a bottom sheet, dragging it, a
+navigation transition, typing) `record` samples a single window: JS frame pacing, React commits and what caused
+them, and on Android the gfxinfo frame times.
+
+```sh
+# Android: adb drives the gesture, so every run is identical and runs can be compared
+npx react-native-perfkit record --device gphone --seconds 10 \
+  --adb "input tap 185 2000; sleep 1.2; input swipe 672 2380 672 1480 450; sleep 1; input swipe 672 1540 672 2700 350"
+
+# any platform: interact by hand during the window
+npx react-native-perfkit record --device iPhone --seconds 8
+```
+
+This is how we compared @gorhom/bottom-sheet with a native sheet (TrueSheet). With the same adb script, commits
+per run fell from 35-39 (the sheet's own layout, its Skia background re-measuring, and the list behind it
+re-committing) to 5-9 (only the open/close state).
+
+Keep adb swipes above the navigation bar. On a 2992px emulator, a swipe that ends below y≈2700 can pull down the
+notification shade. The app then loses focus and drops off Metro.
 
 ## Caveats
 

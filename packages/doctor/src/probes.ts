@@ -155,16 +155,16 @@ export const stopSamplingProbe = `JSON.stringify((() => {
 })())`;
 
 /**
- * Scroll driver. Collects every mounted ScrollView-like instance (stateNode with
- * scrollTo + getScrollResponder — this also reaches the ScrollView inside a
- * FlashList/FlatList) and picks the one owning the LARGEST subtree (the main
- * list, not a drawer/header scroller). Measures its content height, then steps
- * scrollTo() down to the end and back up.
+ * Shared: find the main vertical scroller. Collects every mounted ScrollView-like
+ * instance (stateNode with scrollTo + getScrollResponder — this also reaches the
+ * ScrollView inside a FlashList/FlatList) and picks the one owning the LARGEST
+ * host-view subtree (the main list, not a drawer/header scroller). Then measures
+ * content height and calls `run(contentHeight, viewport)`.
  *
  * FlashList v2 note: scrollToOffset/scrollToEnd on its ref are no-ops, but
  * scrollTo on the underlying ScrollView works.
  */
-export const startScrollProbe = (opts: { passes: number; stepMs: number }) => `JSON.stringify((() => {
+const FIND_MAIN_SCROLLER = `
   const hook = globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__;
   if (!hook) return { ok: false, reason: 'no devtools hook' };
   const candidates = [];
@@ -192,10 +192,25 @@ export const startScrollProbe = (opts: { passes: number; stepMs: number }) => `J
   if (!candidates.length) return { ok: false, reason: 'no mounted vertical ScrollView/list found' };
   candidates.sort((a, b) => b.size - a.size);
   const target = candidates[0].sn;
+  let viewport = 800;
+  try { viewport = require('react-native').Dimensions.get('window').height; } catch (e) {}
+  const measureThen = (run) => {
+    const inner = typeof target.getInnerViewRef === 'function' ? target.getInnerViewRef() : null;
+    if (inner && typeof inner.measure === 'function') {
+      let started = false;
+      inner.measure((x, y, w, h) => { if (started) return; started = true; run(h > 0 ? h : 20000, viewport); });
+      setTimeout(() => { if (!started) { started = true; run(20000, viewport); } }, 1000);
+    } else run(20000, viewport);
+  };
+`;
+
+/** Scroll the main scroller down to the end and back up, stepping every stepMs. */
+export const startScrollProbe = (opts: { passes: number; stepMs: number }) => `JSON.stringify((() => {
+${FIND_MAIN_SCROLLER}
   const st = { done: false, steps: 0, total: 0, contentHeight: null };
   globalThis.__rnPerfkitScroll = st;
   const passes = ${opts.passes}, stepMs = ${opts.stepMs};
-  const run = (contentHeight, viewport) => {
+  measureThen((contentHeight, viewport) => {
     const step = Math.max(200, Math.round(viewport * 0.8));
     const maxY = Math.max(step, contentHeight - viewport);
     const seq = [];
@@ -214,16 +229,29 @@ export const startScrollProbe = (opts: { passes: number; stepMs: number }) => `J
       setTimeout(tick, stepMs);
     };
     tick();
-  };
-  let viewport = 800;
-  try { const d = require('react-native').Dimensions; viewport = d.get('window').height; } catch (e) {}
-  const inner = typeof target.getInnerViewRef === 'function' ? target.getInnerViewRef() : null;
-  if (inner && typeof inner.measure === 'function') {
-    let started = false;
-    inner.measure((x, y, w, h) => { if (started) return; started = true; run(h > 0 ? h : 20000, viewport); });
-    setTimeout(() => { if (!started) { started = true; run(20000, viewport); } }, 1000);
-  } else run(20000, viewport);
+  });
   return { ok: true, kind: 'scrollview', candidates: candidates.length, subtreeHostViews: candidates[0].size };
 })())`;
 
-export const scrollDoneProbe = `JSON.stringify(globalThis.__rnPerfkitScroll ? { done: !!globalThis.__rnPerfkitScroll.done, steps: globalThis.__rnPerfkitScroll.steps, total: globalThis.__rnPerfkitScroll.total, contentHeight: globalThis.__rnPerfkitScroll.contentHeight, error: globalThis.__rnPerfkitScroll.error || null } : { done: true, steps: 0 })`;
+/**
+ * Park the main scroller at a fixed offset (no animation) so an idle window can
+ * measure a specific region reproducibly. `at` is px, or a fraction 0..1 of the
+ * scrollable range when `fraction` is true.
+ */
+export const parkProbe = (at: number, fraction: boolean) => `JSON.stringify((() => {
+${FIND_MAIN_SCROLLER}
+  const st = { done: false, y: null, contentHeight: null };
+  globalThis.__rnPerfkitScroll = st;
+  measureThen((contentHeight, viewport) => {
+    const maxY = Math.max(0, contentHeight - viewport);
+    const y = Math.round(Math.min(maxY, Math.max(0, ${fraction ? `${at} * maxY` : at})));
+    // animated:false scrollTo is ignored by FlashList v2's ScrollView (measured:
+    // reported y=4745 while the screen stayed at the top); animated works.
+    try { target.scrollTo({ y, animated: true }); } catch (e) { st.error = String(e); }
+    st.y = y; st.contentHeight = contentHeight;
+    setTimeout(() => { st.done = true; }, 900);
+  });
+  return { ok: true };
+})())`;
+
+export const scrollDoneProbe = `JSON.stringify(globalThis.__rnPerfkitScroll ? { done: !!globalThis.__rnPerfkitScroll.done, steps: globalThis.__rnPerfkitScroll.steps, total: globalThis.__rnPerfkitScroll.total, y: globalThis.__rnPerfkitScroll.y, contentHeight: globalThis.__rnPerfkitScroll.contentHeight, error: globalThis.__rnPerfkitScroll.error || null } : { done: true, steps: 0 })`;
