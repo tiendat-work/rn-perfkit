@@ -48,8 +48,8 @@ module.exports = [
 
 ## Companion
 
-`rn-perfkit` doctor (coming): on-device measurement over Metro CDP, adb and simctl, covering JS/UI fps, commit
-cost, host-view census, Android gfxinfo, and an emulator GPU check.
+[`rn-perfkit`](../doctor) doctor: on-device measurement over Metro CDP and adb, covering JS fps, commit cost,
+host-view census, Android gfxinfo, and an emulator GPU check.
 
 ## License
 

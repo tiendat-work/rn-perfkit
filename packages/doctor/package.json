@@ -1,0 +1,48 @@
+{
+  "name": "rn-perfkit",
+  "version": "0.1.0",
+  "description": "On-device React Native performance doctor: JS fps, React commits, host-view census, dev warnings, CPU profile, Android gfxinfo and emulator GPU checks over Metro CDP, adb and simctl.",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "rn-perfkit": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "react-native",
+    "performance",
+    "expo",
+    "hermes",
+    "cdp",
+    "fps",
+    "flashlist",
+    "doctor"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiendat-work/rn-perfkit.git",
+    "directory": "packages/doctor"
+  },
+  "engines": {
+    "node": ">=18.18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.12",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && chmod +x dist/cli.js",
+    "test": "pnpm build && vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}
