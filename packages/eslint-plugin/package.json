@@ -1,0 +1,51 @@
+{
+  "name": "eslint-plugin-rn-perfkit",
+  "version": "0.1.0",
+  "description": "ESLint rules for React Native performance pitfalls, each backed by an on-device measurement.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "docs",
+    "README.md"
+  ],
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "react-native",
+    "performance",
+    "flashlist",
+    "reanimated",
+    "expo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiendat-work/rn-perfkit.git",
+    "directory": "packages/eslint-plugin"
+  },
+  "engines": {
+    "node": ">=18.18"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/parser": "^8.70.1",
+    "@typescript-eslint/rule-tester": "^8.0.0",
+    "eslint": "^9.39.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "pnpm build && vitest run",
+    "typecheck": "tsc --noEmit"
+  }
+}

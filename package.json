@@ -1,0 +1,10 @@
+{
+  "name": "rn-perfkit-monorepo",
+  "private": true,
+  "packageManager": "pnpm@12.4.2",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
