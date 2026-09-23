@@ -32,26 +32,26 @@ const plugin: Plugin = {
 };
 
 const recommendedRules: TSESLint.FlatConfig.Rules = {
-  'rn-perfkit/flashlist-heterogeneous-item-type': 'error',
-  'rn-perfkit/no-font-weight-with-custom-font': 'error',
-  'rn-perfkit/no-fractional-pixel-unit': 'error',
-  'rn-perfkit/no-svg-element-per-item': 'warn',
-  'rn-perfkit/no-value-in-inline-style': 'error',
+  'react-native-perfkit/flashlist-heterogeneous-item-type': 'error',
+  'react-native-perfkit/no-font-weight-with-custom-font': 'error',
+  'react-native-perfkit/no-fractional-pixel-unit': 'error',
+  'react-native-perfkit/no-svg-element-per-item': 'warn',
+  'react-native-perfkit/no-value-in-inline-style': 'error',
 };
 
 plugin.configs.recommended = {
-  name: 'rn-perfkit/recommended',
-  plugins: { 'rn-perfkit': plugin as unknown as TSESLint.FlatConfig.Plugin },
+  name: 'react-native-perfkit/recommended',
+  plugins: { 'react-native-perfkit': plugin as unknown as TSESLint.FlatConfig.Plugin },
   rules: recommendedRules,
 };
 
 plugin.configs.strict = {
-  name: 'rn-perfkit/strict',
-  plugins: { 'rn-perfkit': plugin as unknown as TSESLint.FlatConfig.Plugin },
+  name: 'react-native-perfkit/strict',
+  plugins: { 'react-native-perfkit': plugin as unknown as TSESLint.FlatConfig.Plugin },
   rules: {
     ...recommendedRules,
-    'rn-perfkit/no-svg-element-per-item': 'error',
-    'rn-perfkit/no-unbounded-repeat': 'warn',
+    'react-native-perfkit/no-svg-element-per-item': 'error',
+    'react-native-perfkit/no-unbounded-repeat': 'warn',
   },
 };
 

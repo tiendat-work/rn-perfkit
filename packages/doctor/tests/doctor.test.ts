@@ -139,7 +139,7 @@ describe('checks', () => {
 
   it('renders a plain-text report with a summary line', () => {
     const txt = renderText({
-      tool: 'rn-perfkit',
+      tool: 'react-native-perfkit',
       version: '0.0.0',
       createdAt: '',
       target: { title: 'app (sim)' },

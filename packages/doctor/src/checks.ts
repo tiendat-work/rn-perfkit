@@ -151,7 +151,7 @@ export function checkWarnings(s: Sample): Finding[] {
       advice:
         `Each console.warn/error costs JS time and shows a LogBox toast. Top: ${top}.` +
         (reanimated
-          ? ' The Reanimated inline-style warning fires for ANY `style={{ x: obj.value }}` — destructure plain fields (eslint-plugin-rn-perfkit: no-value-in-inline-style).'
+          ? ' The Reanimated inline-style warning fires for ANY `style={{ x: obj.value }}` — destructure plain fields (eslint-plugin-react-native-perfkit: no-value-in-inline-style).'
           : ''),
     },
   ];
@@ -172,7 +172,7 @@ export function checkScroll(s: Sample, env: Env): Finding[] {
     advice = `JS thread stalls while scrolling (${s.over100} frames >100ms). Commits: ${s.commits} (${origins}).`;
     if (env.dev) advice += ' This is a Debug build — re-measure in Release before optimising (Debug overstated this ~2x in our measurements).';
     advice +=
-      ' If commits come from FlashList with heterogeneous items, add getItemType + a memo cell (eslint-plugin-rn-perfkit: flashlist-heterogeneous-item-type).';
+      ' If commits come from FlashList with heterogeneous items, add getItemType + a memo cell (eslint-plugin-react-native-perfkit: flashlist-heterogeneous-item-type).';
   }
   return [
     {

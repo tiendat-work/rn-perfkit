@@ -188,7 +188,7 @@ export async function runDoctor(opts: DoctorOptions): Promise<Report> {
   }
 
   return {
-    tool: 'rn-perfkit',
+    tool: 'react-native-perfkit',
     version: VERSION,
     createdAt: new Date().toISOString(),
     target: { title: target.title, ...info, platform },

@@ -1,4 +1,4 @@
-# rn-perfkit/no-unbounded-repeat
+# react-native-perfkit/no-unbounded-repeat
 
 Flag infinite Reanimated `withRepeat` loops (strict config, warning).
 

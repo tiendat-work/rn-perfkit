@@ -10,7 +10,7 @@ describe('built cli', () => {
   it('prints help and exits 0', () => {
     const r = run('--help');
     expect(r.status).toBe(0);
-    expect(r.stdout).toContain('rn-perfkit doctor');
+    expect(r.stdout).toContain('react-native-perfkit doctor');
   });
 
   it('rejects unknown commands with exit 2', () => {

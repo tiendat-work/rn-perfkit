@@ -1,4 +1,4 @@
-# rn-perfkit/no-svg-element-per-item
+# react-native-perfkit/no-svg-element-per-item
 
 Disallow `.map()` that emits one react-native-svg element per item.
 

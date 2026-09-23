@@ -41,7 +41,7 @@ function wrap(text: string, width: number, indent: string): string {
 
 export function renderText(r: Report, useColor = false): string {
   const out: string[] = [];
-  out.push(`rn-perfkit doctor ${r.version} — ${r.target.title}`);
+  out.push(`react-native-perfkit doctor ${r.version} — ${r.target.title}`);
   out.push('');
   for (const f of r.findings) {
     out.push(`${color(f.status, ICON[f.status], useColor)}  ${f.title}${f.value ? `: ${f.value}` : ''}`);

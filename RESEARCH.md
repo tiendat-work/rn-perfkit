@@ -1,11 +1,11 @@
-# rn-perfkit — research (phase 0)
+# react-native-perfkit — research (phase 0)
 
 Goal: turn what we MEASURED while fixing the English app (Sep 2026) into reusable
 checks for any React Native project. Two parts:
 
-1. `eslint-plugin-rn-perfkit`: static rules for the patterns that cost us real
+1. `eslint-plugin-react-native-perfkit`: static rules for the patterns that cost us real
    frames. These run in the editor and in CI.
-2. `rn-perfkit` doctor CLI (phase 2): on-device measurement over Metro CDP, adb
+2. `react-native-perfkit` doctor CLI (phase 2): on-device measurement over Metro CDP, adb
    and simctl. It prints a report with pass/fail thresholds.
 
 ## What already exists (checked 2026-09-23)
@@ -20,7 +20,7 @@ checks for any React Native project. Two parts:
 | margelo/react-native-release-profiler | Hermes sampling profiler in RELEASE builds | the doctor's Release measurement could use it; we saw that Debug numbers mislead |
 
 No existing ESLint rule covers any of the measured patterns below. The npm names
-`eslint-plugin-rn-perfkit` and `rn-perfkit` are free.
+`eslint-plugin-react-native-perfkit` and `react-native-perfkit` are free.
 
 ## Rules: each backed by a measurement
 
@@ -40,8 +40,8 @@ Out of scope for lint (runtime only, so the doctor handles them):
 
 ## Design
 
-- Monorepo (pnpm): `packages/eslint-plugin` (published as `eslint-plugin-rn-perfkit`)
-  and `packages/doctor` (phase 2, `rn-perfkit`).
+- Monorepo (pnpm): `packages/eslint-plugin` (published as `eslint-plugin-react-native-perfkit`)
+  and `packages/doctor` (phase 2, `react-native-perfkit`).
 - TypeScript, rules built with `@typescript-eslint/utils` RuleCreator; tests use
   `@typescript-eslint/rule-tester` on vitest. Output is compiled CJS because Expo's
   `eslint.config.js` uses `require`. Flat config only (ESLint 9+).

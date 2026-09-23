@@ -1,4 +1,4 @@
-# rn-perfkit/no-font-weight-with-custom-font
+# react-native-perfkit/no-font-weight-with-custom-font
 
 Disallow `fontWeight` together with a custom `fontFamily`.
 

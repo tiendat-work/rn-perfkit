@@ -1,4 +1,4 @@
-# rn-perfkit/no-fractional-pixel-unit
+# react-native-perfkit/no-fractional-pixel-unit
 
 Disallow fractional literals for pixel-grid cell sizes.
 

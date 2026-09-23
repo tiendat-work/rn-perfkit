@@ -1,4 +1,4 @@
-# eslint-plugin-rn-perfkit
+# eslint-plugin-react-native-perfkit
 
 ESLint rules for React Native performance and rendering pitfalls. We measured each one on a device before
 writing a rule for it. Every rule doc says what happened, what the numbers were and how it was fixed.
@@ -6,14 +6,14 @@ writing a rule for it. Every rule doc says what happened, what the numbers were 
 ## Install
 
 ```sh
-npm i -D eslint-plugin-rn-perfkit
+npm i -D eslint-plugin-react-native-perfkit
 ```
 
 ESLint 9+ flat config (works with `eslint-config-expo/flat`):
 
 ```js
 // eslint.config.js
-const rnPerfkit = require('eslint-plugin-rn-perfkit');
+const rnPerfkit = require('eslint-plugin-react-native-perfkit');
 
 module.exports = [
   // ...your config
@@ -21,8 +21,8 @@ module.exports = [
   // optional: wrappers around FlashList, projects that use only custom fonts
   {
     rules: {
-      'rn-perfkit/flashlist-heterogeneous-item-type': ['error', { components: ['FlashList', 'MyList'] }],
-      'rn-perfkit/no-font-weight-with-custom-font': ['error', { customFontsOnly: true }],
+      'react-native-perfkit/flashlist-heterogeneous-item-type': ['error', { components: ['FlashList', 'MyList'] }],
+      'react-native-perfkit/no-font-weight-with-custom-font': ['error', { customFontsOnly: true }],
     },
   },
 ];
@@ -48,7 +48,7 @@ module.exports = [
 
 ## Companion
 
-[`rn-perfkit`](../doctor) doctor: on-device measurement over Metro CDP and adb, covering JS fps, commit cost,
+[`react-native-perfkit`](../doctor) doctor: on-device measurement over Metro CDP and adb, covering JS fps, commit cost,
 host-view census, Android gfxinfo, and an emulator GPU check.
 
 ## License

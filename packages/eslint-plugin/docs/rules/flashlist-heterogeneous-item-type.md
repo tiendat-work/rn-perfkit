@@ -1,4 +1,4 @@
-# rn-perfkit/flashlist-heterogeneous-item-type
+# react-native-perfkit/flashlist-heterogeneous-item-type
 
 Require `getItemType` on a FlashList whose items render as different component trees.
 

@@ -1,4 +1,4 @@
-# rn-perfkit/no-value-in-inline-style
+# react-native-perfkit/no-value-in-inline-style
 
 Disallow `.value` reads inside inline JSX styles.
 

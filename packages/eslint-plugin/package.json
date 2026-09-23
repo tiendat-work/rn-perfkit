@@ -1,5 +1,5 @@
 {
-  "name": "eslint-plugin-rn-perfkit",
+  "name": "eslint-plugin-react-native-perfkit",
   "version": "0.1.0",
   "description": "ESLint rules for React Native performance pitfalls, each backed by an on-device measurement.",
   "license": "MIT",
@@ -47,5 +47,13 @@
     "build": "tsc -p tsconfig.build.json",
     "test": "pnpm build && vitest run",
     "typecheck": "tsc --noEmit"
+  },
+  "author": "tiendat-work",
+  "homepage": "https://github.com/tiendat-work/rn-perfkit/tree/main/packages/eslint-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/tiendat-work/rn-perfkit/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

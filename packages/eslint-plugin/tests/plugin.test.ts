@@ -13,7 +13,7 @@ const plugin = require('../dist/index.js') as Plugin;
 
 describe('built plugin', () => {
   it('has meta and 6 rules, each with a description and a measured note', () => {
-    expect(plugin.meta.name).toBe('eslint-plugin-rn-perfkit');
+    expect(plugin.meta.name).toBe('eslint-plugin-react-native-perfkit');
     expect(Object.keys(plugin.rules)).toHaveLength(6);
     for (const [name, rule] of Object.entries(plugin.rules)) {
       expect(rule.meta.docs?.description, name).toBeTruthy();
@@ -24,9 +24,9 @@ describe('built plugin', () => {
   it('configs reference only existing rules and embed the plugin', () => {
     for (const cfg of Object.values(plugin.configs)) {
       for (const key of Object.keys(cfg.rules ?? {})) {
-        expect(Object.keys(plugin.rules)).toContain(key.replace('rn-perfkit/', ''));
+        expect(Object.keys(plugin.rules)).toContain(key.replace('react-native-perfkit/', ''));
       }
-      expect(cfg.plugins?.['rn-perfkit']).toBe(plugin);
+      expect(cfg.plugins?.['react-native-perfkit']).toBe(plugin);
     }
   });
 });

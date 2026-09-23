@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * rn-perfkit — React Native performance doctor.
+ * react-native-perfkit — React Native performance doctor.
  *
- *   rn-perfkit doctor [--device <name>] [--idle 5] [--no-scroll] [--profile out.cpuprofile]
+ *   react-native-perfkit doctor [--device <name>] [--idle 5] [--no-scroll] [--profile out.cpuprofile]
  *                     [--json] [--out report.json] [--fail-on fail|warn|never] [--metro http://localhost:8081]
- *   rn-perfkit targets
+ *   react-native-perfkit targets
  */
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
@@ -13,11 +13,11 @@ import { listTargets, runDoctor } from './doctor';
 import { isReactRuntime } from './metro';
 import { exitCode, renderText } from './report';
 
-const HELP = `rn-perfkit — on-device React Native performance doctor
+const HELP = `react-native-perfkit — on-device React Native performance doctor
 
 Usage:
-  rn-perfkit doctor [options]   measure the app on a connected device/simulator
-  rn-perfkit targets            list Metro inspector targets
+  react-native-perfkit doctor [options]   measure the app on a connected device/simulator
+  react-native-perfkit targets            list Metro inspector targets
 
 Doctor options:
   --metro <url>        Metro dev server (default http://localhost:8081)
@@ -121,7 +121,7 @@ async function main(argv: string[]): Promise<number> {
 main(process.argv.slice(2)).then(
   (code) => process.exit(code),
   (err: Error) => {
-    process.stderr.write(`rn-perfkit: ${err.message}\n`);
+    process.stderr.write(`react-native-perfkit: ${err.message}\n`);
     process.exit(2);
   },
 );

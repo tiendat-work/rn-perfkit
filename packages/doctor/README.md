@@ -1,12 +1,12 @@
-# rn-perfkit (doctor)
+# react-native-perfkit (doctor)
 
-`rn-perfkit` measures a running React Native app on a device or simulator and reports pass/warn/fail findings.
+`react-native-perfkit` measures a running React Native app on a device or simulator and reports pass/warn/fail findings.
 Each finding comes with advice based on something we measured ourselves.
 
 ```sh
-npx rn-perfkit doctor                    # first RN runtime connected to Metro
-npx rn-perfkit doctor --device iPhone --profile run.cpuprofile --out report.json
-npx rn-perfkit targets                   # list Metro inspector targets
+npx react-native-perfkit doctor                    # first RN runtime connected to Metro
+npx react-native-perfkit doctor --device iPhone --profile run.cpuprofile --out report.json
+npx react-native-perfkit targets                   # list Metro inspector targets
 ```
 
 It talks to the app through Metro's inspector (Chrome DevTools Protocol, the same channel React Native
@@ -57,7 +57,7 @@ Exit codes: 0 = ok, 1 = findings at or above `--fail-on`, 2 = usage error or no 
 
 ## Pairs with
 
-[`eslint-plugin-rn-perfkit`](../eslint-plugin): the static half. Doctor advice links to the rule that prevents a
+[`eslint-plugin-react-native-perfkit`](../eslint-plugin): the static half. Doctor advice links to the rule that prevents a
 pattern from coming back.
 
 MIT

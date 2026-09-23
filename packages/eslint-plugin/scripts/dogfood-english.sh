@@ -16,11 +16,11 @@ module.exports = [
     files: ['**/*.{ts,tsx}'],
     languageOptions: { parser: tsParser, parserOptions: { ecmaFeatures: { jsx: true } } },
     linterOptions: { reportUnusedDisableDirectives: 'off' },
-    plugins: { 'rn-perfkit': perf },
+    plugins: { 'react-native-perfkit': perf },
     rules: {
       ...perf.configs.strict.rules,
-      'rn-perfkit/flashlist-heterogeneous-item-type': ['error', { components: ['FlashList', 'PixelPullRefresh'] }],
-      'rn-perfkit/no-font-weight-with-custom-font': ['error', { customFontsOnly: true }],
+      'react-native-perfkit/flashlist-heterogeneous-item-type': ['error', { components: ['FlashList', 'PixelPullRefresh'] }],
+      'react-native-perfkit/no-font-weight-with-custom-font': ['error', { customFontsOnly: true }],
     },
   },
 ];
