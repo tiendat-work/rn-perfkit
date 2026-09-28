@@ -19,6 +19,7 @@ import {
   type MetroTarget,
 } from "../src/metro";
 import { parseGfxinfo, parseGles } from "../src/native";
+import { devtoolsOrigin } from "../src/cdp";
 import { summarizeProfile, type CpuProfile } from "../src/profile";
 import { exitCode, renderText } from "../src/report";
 
@@ -297,5 +298,12 @@ describe("cpu profile summary", () => {
     expect(s.commit.max).toBe(40);
     const f = checkProfile(s, devEnv).find((x) => x.id === "fabric-commit")!;
     expect(f.status).toBe("fail");
+  });
+});
+
+describe("devtoolsOrigin", () => {
+  it("derives the Metro http origin that RN 0.86 requires on the inspector socket", () => {
+    expect(devtoolsOrigin("ws://localhost:8082/inspector/debug?device=abc&page=1")).toBe("http://127.0.0.1:8082");
+    expect(devtoolsOrigin("wss://metro.example.com/inspector/debug")).toBe("https://metro.example.com");
   });
 });
