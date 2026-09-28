@@ -13,6 +13,20 @@ import WebSocket from 'ws';
 type Pending = { resolve: (v: CdpMessage) => void; reject: (e: Error) => void; timer: NodeJS.Timeout };
 export type CdpMessage = { id?: number; result?: any; error?: { message: string } };
 
+/**
+ * Metro in RN 0.86 answers a debugger WebSocket without an `Origin` header with HTTP 401
+ * (measured on the Dogspotting app, Metro on :8082). Its own base URL is
+ * `http://127.0.0.1:<port>`. With `Origin: http://localhost:<port>` the socket opens but
+ * `Runtime.evaluate` never answers (3/3 runs); with `http://127.0.0.1:<port>` it answers at once.
+ * So a local Metro gets the 127.0.0.1 origin, anything else its own host.
+ */
+export const devtoolsOrigin = (wsUrl: string): string => {
+  const u = new URL(wsUrl);
+  const scheme = u.protocol === 'wss:' ? 'https:' : 'http:';
+  const host = u.hostname === 'localhost' ? `127.0.0.1${u.port ? `:${u.port}` : ''}` : u.host;
+  return `${scheme}//${host}`;
+};
+
 export class CdpClient {
   private ws: WebSocket;
   private nextId = 0;
@@ -46,7 +60,7 @@ export class CdpClient {
 
   static connect(url: string, timeoutMs = 5000): Promise<CdpClient> {
     return new Promise((resolve, reject) => {
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(url, { origin: devtoolsOrigin(url) });
       const t = setTimeout(() => {
         ws.terminate();
         reject(new Error(`CDP connect timeout: ${url}`));
